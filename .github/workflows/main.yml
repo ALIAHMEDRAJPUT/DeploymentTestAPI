@@ -82,6 +82,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Add SSH Host Key
+      run: |
+        ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+      env:
+        HOST: ${{ secrets.DEPLOY_HOST }}
+
     - name: 📁 Transfer Files via rsync
       run: |
         echo "Deploying ${{ env.APP_TYPE }} to $USER@$HOST:${{ env.SERVER_PATH }}"
