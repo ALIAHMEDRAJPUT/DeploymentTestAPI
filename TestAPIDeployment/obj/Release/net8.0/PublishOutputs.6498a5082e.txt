@@ -1,0 +1,11 @@
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\TestAPIDeployment.exe
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\appsettings.json
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\TestAPIDeployment.dll
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\TestAPIDeployment.deps.json
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\TestAPIDeployment.runtimeconfig.json
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\TestAPIDeployment.pdb
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\Microsoft.OpenApi.dll
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\Ali Chughtai\OneDrive - Signup Solution\Desktop\TestAPIDeployment\TestAPIDeployment\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll
