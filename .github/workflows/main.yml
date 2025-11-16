@@ -104,12 +104,12 @@ jobs:
     - name: ♻️ Restart Supervisor Service
       if: env.APP_TYPE == 'api'
       env:
-        SUPERVISOR_PROGRAM: ${{ vars.API_SUPERVISOR_BASE }}_${{ github.event.inputs.environment }}
+        SUPERVISOR_PROGRAM: ${{ vars.API_SUPERVISOR_BASE }}
         
       run: |
         echo "Restarting service: ${{ env.SUPERVISOR_PROGRAM }}"
         # Execute the restart command remotely via SSH
         ssh ${{ env.USER }}@${{ env.HOST }} "
-          sudo /usr/bin/supervisorctl restart ${{ env.SUPERVISOR_PROGRAM }} 
+          sudo $SUPERVISOR_PATH=$(which supervisorctl) restart ${{ env.SUPERVISOR_PROGRAM }} 
           echo 'Service restart complete.'
         "
