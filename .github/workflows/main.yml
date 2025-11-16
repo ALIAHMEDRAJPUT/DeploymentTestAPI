@@ -1,0 +1,109 @@
+# This workflow is designed to be reusable across multiple repositories 
+# (DotNet APIs and Vue/Node Frontends) by relying on repository variables
+# for project-specific configurations.
+name: 🔄 Generic Deployment (Manual)
+
+on:
+  # Allows manual triggering with required inputs for environment and application type.
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the deployment target environment'
+        required: true
+        type: choice
+        default: 'staging'
+        options:
+        - staging
+        - production
+      app_type:
+        description: 'Select the application type to deploy'
+        required: true
+        type: choice
+        default: 'api'
+        options:
+        - api # DotNet API, uses supervisorctl restart
+        - frontend # Vue/Nuxt/Static, uses rsync file sync
+
+jobs:
+  deploy:
+    # Use the selected environment for GitHub protection rules (Required Reviewers).
+    environment: ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    
+    # Define common SSH variables
+    env:
+      HOST: ${{ secrets.DEPLOY_HOST }}
+      USER: ${{ secrets.DEPLOY_USER }}
+      # Determine the server path based on the selected environment variable
+      SERVER_PATH: ${{ github.event.inputs.environment == 'production' && vars.DEPLOY_TARGET_PATH_PROD || vars.DEPLOY_TARGET_PATH_STAGING }}
+      APP_TYPE: ${{ github.event.inputs.app_type }}
+
+    steps:
+    - name: ⬇️ Checkout Code
+      uses: actions/checkout@v4
+
+    # ==================================
+    # 1. CI: CONDITIONAL BUILD STEPS
+    # ==================================
+
+    # --- .NET API BUILD (Only runs if app_type is 'api') ---
+    - name: 🛠️ Setup .NET Core and Build
+      if: env.APP_TYPE == 'api'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: 🏗️ Restore and Publish .NET Artifacts
+      if: env.APP_TYPE == 'api'
+      run: |
+        dotnet restore
+        # Uses the variable defined in the repository settings (e.g., DeploymentTestAPI.csproj)
+        dotnet publish ${{ vars.API_PROJECT_FILE }} -c Release -o ./publish --no-restore
+      
+    # --- VUE/NODE FRONTEND BUILD (Only runs if app_type is 'frontend') ---
+    - name: 🛠️ Setup Node.js and Install Dependencies
+      if: env.APP_TYPE == 'frontend'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 🏗️ Build Frontend Assets
+      if: env.APP_TYPE == 'frontend'
+      # Uses the build command defined in the repository settings (e.g., npm run build)
+      run: ${{ vars.FRONTEND_BUILD_COMMAND }}
+
+
+    # ==================================
+    # 2. CD: DEPLOYMENT STEPS
+    # ==================================
+    
+    - name: 🔑 Set up SSH Key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: 📁 Transfer Files via rsync
+      run: |
+        echo "Deploying ${{ env.APP_TYPE }} to $USER@$HOST:${{ env.SERVER_PATH }}"
+        
+        # Determine source directory based on app type
+        BUILD_SOURCE=${{ env.APP_TYPE == 'api' && './publish/' || vars.FRONTEND_BUILD_DIR }}
+        
+        # Use rsync to synchronize the build output to the remote server path
+        rsync -avz --delete $BUILD_SOURCE $USER@$HOST:${{ env.SERVER_PATH }}
+        
+        echo 'File transfer complete.'
+
+    # --- API SERVICE RESTART (Only runs if app_type is 'api') ---
+    - name: ♻️ Restart Supervisor Service
+      if: env.APP_TYPE == 'api'
+      env:
+        SUPERVISOR_PROGRAM: ${{ vars.API_SUPERVISOR_BASE }}_${{ github.event.inputs.environment }}
+        
+      run: |
+        echo "Restarting service: ${{ env.SUPERVISOR_PROGRAM }}"
+        # Execute the restart command remotely via SSH
+        ssh ${{ env.USER }}@${{ env.HOST }} "
+          sudo /usr/bin/supervisorctl restart ${{ env.SUPERVISOR_PROGRAM }} 
+          echo 'Service restart complete.'
+        "
