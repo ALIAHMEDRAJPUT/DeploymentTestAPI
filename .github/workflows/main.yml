@@ -110,6 +110,6 @@ jobs:
         echo "Restarting service: ${{ env.SUPERVISOR_PROGRAM }}"
         # Execute the restart command remotely via SSH
         ssh ${{ env.USER }}@${{ env.HOST }} "
-          sudo $SUPERVISOR_PATH=$(which supervisorctl) restart ${{ env.SUPERVISOR_PROGRAM }} 
+          sudo /usr/bin/supervisorctl restart ${{ env.SUPERVISOR_PROGRAM }} 
           echo 'Service restart complete.'
         "
