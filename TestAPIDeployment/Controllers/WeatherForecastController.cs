@@ -42,8 +42,20 @@ namespace TestAPIDeployment.Controllers
             .ToArray();
         }
 
-        [HttpGet("v3", Name = "GetWeatherForecastv2")]
+        [HttpGet("v3", Name = "GetWeatherForecastv3")]
         public IEnumerable<WeatherForecast> Getv3()
+        {
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+
+        [HttpGet("v4", Name = "GetWeatherForecastv4")]
+        public IEnumerable<WeatherForecast> Getv4()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
