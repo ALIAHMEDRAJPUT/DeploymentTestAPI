@@ -104,7 +104,7 @@ jobs:
     - name: ♻️ Restart Supervisor Service
       if: env.APP_TYPE == 'api'
       env:
-        SUPERVISOR_PROGRAM: ${{ vars.API_SUPERVISOR_BASE }}_${{ github.event.inputs.environment }}
+        SUPERVISOR_PROGRAM: ${{ vars.API_SUPERVISOR_BASE }}
         
       run: |
         echo "Restarting service: ${{ env.SUPERVISOR_PROGRAM }}"
