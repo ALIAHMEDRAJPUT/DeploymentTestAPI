@@ -88,6 +88,37 @@ jobs:
       env:
         HOST: ${{ secrets.DEPLOY_HOST }}
 
+    # UPDATED STEP: Backup the current remote directory and clean up old backups
+    - name: 💾 Backup Current Deployment and Clean Old
+      run: |
+        echo "Creating remote backup of ${{ env.SERVER_PATH }}"
+        # Define the backup directory (e.g., a sibling folder named 'deployment_backups')
+        BACKUP_DIR="/home/${{ env.USER }}/deployment_backups"
+        
+        # Define the deployment folder name (used as the prefix for the zip file)
+        DEPLOY_FOLDER=$(basename ${{ env.SERVER_PATH }})
+        BACKUP_PREFIX="${DEPLOY_FOLDER}-"
+        
+        # Execute the backup and cleanup command remotely via SSH
+        ssh ${{ env.USER }}@${{ env.HOST }} "
+          # 1. Create backup folder if it doesn't exist
+          mkdir -p ${BACKUP_DIR}
+          
+          # 2. Create the new timestamped zip file of the current application directory
+          echo 'Creating new backup...'
+          /usr/bin/zip -r ${BACKUP_DIR}/${BACKUP_PREFIX}$(date +%Y%m%d%H%M%S).zip ${{ env.SERVER_PATH }} > /dev/null
+          
+          # 3. Clean up: Delete all backups for this application, keeping only the most recent one (the one we just created).
+          echo 'Cleaning up old backups...'
+          # Find files matching the prefix, sort by time (newest first), skip the first one, and delete the rest.
+          find ${BACKUP_DIR} -maxdepth 1 -name \"${BACKUP_PREFIX}*.zip\" -type f | \
+            sort -r | \
+            tail -n +2 | \
+            xargs -r rm
+            
+          echo 'Remote backup and cleanup complete.'
+        "
+
     - name: 📁 Transfer Files via rsync
       run: |
         echo "Deploying ${{ env.APP_TYPE }} to $USER@$HOST:${{ env.SERVER_PATH }}"
@@ -96,6 +127,7 @@ jobs:
         BUILD_SOURCE=${{ env.APP_TYPE == 'api' && './publish/' || vars.FRONTEND_BUILD_DIR }}
         
         # Use rsync to synchronize the build output to the remote server path
+        # --no-perms --no-times avoids cPanel permission issues
         rsync -avz --no-perms --no-times --delete $BUILD_SOURCE $USER@$HOST:${{ env.SERVER_PATH }}
         
         echo 'File transfer complete.'
