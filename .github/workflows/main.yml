@@ -96,7 +96,7 @@ jobs:
         BUILD_SOURCE=${{ env.APP_TYPE == 'api' && './publish/' || vars.FRONTEND_BUILD_DIR }}
         
         # Use rsync to synchronize the build output to the remote server path
-        rsync -avz --delete $BUILD_SOURCE $USER@$HOST:${{ env.SERVER_PATH }}
+        rsync -avz --no-perms --no-times --delete $BUILD_SOURCE $USER@$HOST:${{ env.SERVER_PATH }}
         
         echo 'File transfer complete.'
 
